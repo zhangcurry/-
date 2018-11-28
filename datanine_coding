@@ -1,0 +1,96 @@
+import os
+import numpy as np
+import pandas as pd
+os.chdir('E:/zhangyaohui_Xdr')
+inputfile = '20180425_ans_s1u_general_.csv'###对应原始XDR的数据
+data_tmp = pd.DataFrame()
+reader = pd.read_csv(inputfile, encoding='gbk', header=None,sep='|', iterator=True)
+loop = True
+chunk_size = 10000000###设置一次性读取的数据个数
+while loop:
+    try:
+        chunks = pd.DataFrame()
+        chunks = chunks.append(reader.get_chunk(chunk_size))
+        chunks.columns = ['Length','City','Interface','xDR ID','RAT','IMSI','IMEI','MSISDN','Machine IP Add type','SGW/GGSN IP Add',
+                          'eNB/SGSN IP Add','SGW/GGSN Port','eNB/SGSN Port','eNB/SGSN GTP-TEID','SGW/GGSN GTP-TEID','TAC','Cell ID',
+                          'APN','App Type Code','Procedure Start Time','Procedure End Time','Protocol Type','App Type','App Sub-type',
+                          'App Content','App Status','USER_IPv4','USER_IPv6','User Port','L4 protocal','App Server IP_IPv4','App Server IP_IPv6',
+                          'App Server Port','UL Data','DL Data','UL IP Packet','DL IP Packet','上行TCP乱序报文数','下行TCP乱序报文数',
+                          '上行TCP重传报文数','下行TCP重传报文数','TCP建链响应时延（ms）','TCP建链确认时延（ms）','UL_IP_FRAG_PACKETS',
+                          'DL_IP_FRAG_PACKETS','TCP建链成功到第一条事务请求的时延（ms）','第一条事务请求到其第一个响应包时延（ms）',
+                          '窗口大小','MSS大小','TCP建链尝试次数','TCP连接状态指示','会话是否结束标志','平均时延(ms)','RST中断次数','FIN中断次数',
+                          'no_1','no_2','no_3','no_4','no_5']
+        chunks.drop(['Length','City','Interface','xDR ID','RAT','IMEI','MSISDN','Machine IP Add type','SGW/GGSN IP Add',
+                          'eNB/SGSN IP Add','SGW/GGSN Port','eNB/SGSN Port','eNB/SGSN GTP-TEID','SGW/GGSN GTP-TEID','TAC','Cell ID',
+                         'App Type Code','Procedure Start Time','Procedure End Time','Protocol Type','App Type','App Sub-type',
+                          'App Content','App Status','USER_IPv4','USER_IPv6','User Port'],
+                         axis=1, inplace=True)###先删除一部分特征数据，再获得另外一部分特征数据，这样可减少内存
+        #chunks['IMSI_APN']=chunks['IMSI'].map(str)+'_'+chunks['APN']
+        data_tmp = pd.concat([data_tmp, chunks], ignore_index=True)
+        
+        #ata_tmp['IMSI_APN']=data_tmp['IMSI'].map(str)+'_'+data_tmp['APN']
+        
+    except StopIteration:
+        loop = False
+        print('Iteration is stopped.')
+data_tmp['flag']=list(range(len(data_tmp)))
+os.chdir('E:/zhangyaohui_Xdr')
+inputfile_java = 'java抽取数据-100.csv'
+inputfile_java=open(inputfile_java)
+df = pd.read_csv(inputfile_java)
+print('java数据读取完毕')
+data = df[['IMSI']]
+data1 = pd.merge(data,data_tmp,on='IMSI',how='left')###按照IMSI关键字进行合并
+os.chdir('E:/zhangyaohui_Xdr')     
+data1.to_csv('22多条数据反查XDR原始数据第1.csv',mode='a')
+print('finish')
+
+
+
+import pandas as pd
+import numpy as np
+day_4_25_1_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/80多条数据反查XDR原始数据第1.csv')
+day_4_25_1_half=pd.read_csv(day_4_25_1_half)###读取4.25这天的前一半特征数据
+day_4_25_2_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/22多条数据反查XDR原始数据第1.csv')
+day_4_25_2_half=pd.read_csv(day_4_25_2_half)###读取4.25这天的后一半特征数据
+day_4_25=pd.concat([day_4_25_1_half,day_4_25_2_half],axis=1)
+print(len(day_4_25_1_half))
+print(len(day_4_25_2_half))
+print(len(day_4_25))
+print('-----------')
+
+day_4_26_1_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/80多条数据反查XDR原始数据第2.csv')
+day_4_26_1_half=pd.read_csv(day_4_26_1_half)###读取4.26这天的前一半特征数据
+day_4_26_2_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/22多条数据反查XDR原始数据第2.csv')
+day_4_26_2_half=pd.read_csv(day_4_26_2_half)###读取4.26这天的后一半特征数据
+day_4_26=pd.concat([day_4_26_1_half,day_4_26_2_half],axis=1)
+print(len(day_4_26_1_half))
+print(len(day_4_26_2_half))
+print(len(day_4_26))
+print('-----------')
+
+day_4_27_1_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/80多条数据反查XDR原始数据第3.csv')
+day_4_27_1_half=pd.read_csv(day_4_27_1_half)###读取4.27这天的前一半特征数据
+day_4_27_2_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/22多条数据反查XDR原始数据第3.csv')
+day_4_27_2_half=pd.read_csv(day_4_27_2_half)###读取4.27这天的后一半特征数据
+day_4_27=pd.concat([day_4_27_1_half,day_4_27_2_half],axis=1)
+print(len(day_4_27_1_half))
+print(len(day_4_27_2_half))
+print(len(day_4_27))
+print('-----------')
+                     
+day_4_28_1_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/80多条数据反查XDR原始数据第4.csv')
+day_4_28_1_half=pd.read_csv(day_4_28_1_half)###读取4.28这天的前一半特征数据
+day_4_28_2_half=open('D:/anaconda_coding/杨老师/80条数据反查XDR/22多条数据反查XDR原始数据第4.csv')
+day_4_28_2_half=pd.read_csv(day_4_28_2_half)###读取4.28这天的后一半特征数据
+day_4_28=pd.concat([day_4_28_1_half,day_4_28_2_half],axis=1)
+print(len(day_4_28_1_half))
+print(len(day_4_28_2_half))
+print(len(day_4_28))
+print('-----------')
+                     
+day_concat=pd.concat([day_4_25,day_4_26])####拼接对应的反查数据
+day_concat=pd.concat([day_concat,day_4_27])
+day_concat=pd.concat([day_concat,day_4_28])
+print(len(day_concat))
+day_concat.head()
